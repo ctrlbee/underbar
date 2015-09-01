@@ -271,6 +271,10 @@
       var count = 0; 
       for(var j in arguments[i]){
         //console.log("value:" + j); 
+      console.log("keys: "+keys); 
+      var count = 0; 
+      for(var j in arguments[i]){
+       // console.log("value:" + j); 
         obj[keys[count]] = j; 
         count++; 
       }
