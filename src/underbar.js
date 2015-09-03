@@ -99,7 +99,6 @@
       }
     }); 
     return arr; 
-
   };
 
   // Produce a duplicate-free version of the array.
@@ -174,20 +173,24 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
-    var current;  
+    var current = collection[0];   
+    var counter = 1;
+    
     if(accumulator !== undefined){
-        current = accumulator; 
-        for(var i=0; i<collection.length; i++){
-          current = iterator(current, collection[i]); 
-        }
+      current = accumulator;   
+      counter = 0;
+    }
+    //would like to use _.each function, but I need control over the counter
+    if(Array.isArray(collection)){
+      for(var i=counter; i<collection.length; i++){
+        current = iterator(current, collection[i]); 
+      }  
     }
     else{
-      current = collection[0]; 
-      for(var i=1; i<collection.length; i++){
-          current = iterator(current, collection[i]); 
+      for(var x in collection){
+        current = iterator(current + collection[x]); 
       }
-    }
-    
+    }  
     return current; 
   };
 
@@ -205,27 +208,28 @@
 
 
   // Determine whether all of the elements match a truth test.
-  _.every = function(collection, iterator) {
-    var ret = true;
-    for(var i=0; i<collection.length; i++){
-      if(iterator(collection[i]) !== true){
-       // console.log("collection value: " +collection[i]); 
+  _.every = function(collection, test) {
+    test = test || _.identity; 
+    var ret = true; 
+
+    //THIS WORKS!!!
+    _.each(collection, function(el){
+      if(!test(el)){
         ret = false;
       }
-    }
+    }); 
     return ret; 
-  
 
-    // // TIP: Try re-using reduce() here.
-    // return _.reduce(collection, function(current, item){
-    //   if(iterator(item) !== true){
-    //     return false; 
-    //   }
-    //   return item; 
-
-    // }, false); 
-
-    // return ret;
+    // THIS DOESN'T!! 
+  //   return _.reduce(collection, function(current, item){ 
+  //     if(!test(current, item)){ 
+  //       console.log("CB debug: " +current, item);
+  //       current = false; 
+  //       console.log("CB debug 2: " +current, item);
+  //     }
+  //     console.log("CB return: " +current);
+  //     return current; 
+  //   }, true); 
 
   };
 
@@ -233,6 +237,8 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    iterator = iterator || _.identity; 
+
     if(!iterator){
       iterator = function(x){return true;};     
     }
@@ -264,26 +270,38 @@
   //   }, {
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
-  _.extend = function(obj, objAdd) {
-    for(var i=0; i<arguments.length; i++){
+  _.extend = function(obj) {
+    for(var i=1; i<arguments.length; i++){
       var keys = Object.keys(arguments[i]); 
-      //console.log("keys: "+keys); 
       var count = 0; 
+    
       for(var j in arguments[i]){
-        //console.log("value:" + j); 
-      console.log("keys: "+keys); 
-      var count = 0; 
-      for(var j in arguments[i]){
-       // console.log("value:" + j); 
-        obj[keys[count]] = j; 
+        var key = keys[count];
+        var value = arguments[i][j]; 
+        obj[key] = value; 
         count++; 
       }
     }
+    return obj; 
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for(var i=1; i<arguments.length; i++){
+      var keys = Object.keys(arguments[i]); 
+      var count = 0; 
+    
+      for(var j in arguments[i]){
+        var key = keys[count];
+        var value = arguments[i][j];
+        if(!obj[key]){
+          obj[key] = value;   
+        } 
+        count++; 
+      }
+    }
+    return obj; 
   };
 
 
@@ -327,6 +345,18 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+
+    var ret;  
+    //if var exists, return it, otherwise make the call
+    return function(){
+      console.log("CB input:" +func.apply(this, arguments)); 
+      if(ret !== func.apply(this, arguments)){
+        ret = func.apply(this, arguments);
+      }
+      console.log("CB return:" +ret); 
+      return ret; 
+
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -336,6 +366,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    
+    setTimeout(function(){
+      func(arguments[2], arguments[3]);
+    },wait); 
+
   };
 
 
