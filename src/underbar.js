@@ -368,7 +368,7 @@
   _.delay = function(func, wait) {
     
     setTimeout(function(){
-      func(arguments[2], arguments[3]);
+      func.apply(this, arguments);
     },wait); 
 
   };
@@ -385,6 +385,22 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var shufArr = array.slice(0, array.length); 
+
+    console.log(array); 
+    console.log(shufArr); 
+    
+    for(var i = shufArr.length-1; i>0; i--){
+        var random = Math.floor(Math.random() * i); 
+        console.log("i" + i);  
+
+        console.log("ramdom" + random);  
+        var tempVal = shufArr[random];
+        shufArr[random] = shufArr[i]; 
+        shufArr[i] = tempVal; 
+    }
+     console.log("return arr" + shufArr); 
+    return shufArr; 
   };
 
 
